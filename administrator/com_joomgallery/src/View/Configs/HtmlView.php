@@ -9,6 +9,7 @@
 *****************************************************************************************/
 
 namespace Joomgallery\Component\Joomgallery\Administrator\View\Configs;
+
 // No direct access
 defined('_JEXEC') or die;
 
@@ -23,6 +24,7 @@ use \Joomgallery\Component\Joomgallery\Administrator\View\JoomGalleryView;
 
 /**
  * View class for a list of Configs.
+ * 
  * @package JoomGallery
  * @since   4.0.0
  */
@@ -73,9 +75,9 @@ class HtmlView extends JoomGalleryView
 	protected function addToolbar()
 	{
 		$state = $this->get('State');
-		$canDo = JoomHelper::getActions();
+		$canDo = JoomHelper::getActions('config');
 
-		ToolbarHelper::title(Text::_('COM_JOOMGALLERY_CONFIGURATION_MANAGER'), "sliders-h");
+		ToolbarHelper::title(Text::_('COM_JOOMGALLERY_CONFIGURATION_MANAGER'), "config");
 
 		$toolbar = Toolbar::getInstance('toolbar');
 
@@ -90,10 +92,18 @@ class HtmlView extends JoomGalleryView
 			}
 		}
 
+    if($canDo->get('core.delete'))
+    {
+      $toolbar->delete('configs.delete')
+        ->text('JTOOLBAR_DELETE')
+        ->message(Text::_('COM_JOOMGALLERY_CONFIRM_DELETE_CONFIGS'))
+        ->listCheck(true);
+    }
+
 		if($canDo->get('core.edit.state')  || count($this->transitions))
 		{
 			$dropdown = $toolbar->dropdownButton('status-group')
-				->text('JTOOLBAR_CHANGE_STATUS')
+				->text('JTOOLBAR_PUBLISH')
 				->toggleSplit(false)
 				->icon('fas fa-ellipsis-h')
 				->buttonClass('btn btn-action')
@@ -101,42 +111,36 @@ class HtmlView extends JoomGalleryView
 
 			$childBar = $dropdown->getChildToolbar();
 
-			if(isset($this->items[0]->state))
+			if(isset($this->items[0]->published))
 			{
 				$childBar->publish('configs.publish')->listCheck(true);
 				$childBar->unpublish('configs.unpublish')->listCheck(true);
-				$childBar->archive('configs.archive')->listCheck(true);
-			}
-			elseif(isset($this->items[0]))
-			{
-				// If this component does not use state then show a direct delete button as we can not trash
-				$toolbar->delete('configs.delete')
-				->text('JTOOLBAR_EMPTY_TRASH')
-				->message('JGLOBAL_CONFIRM_DELETE')
-				->listCheck(true);
 			}
 
-			$childBar->standardButton('duplicate')
-				->text('JTOOLBAR_DUPLICATE')
-				->icon('fas fa-copy')
-				->task('configs.duplicate')
-				->listCheck(true);
+      if($canDo->get('core.edit'))
+      {
+        $batch_dropdown = $toolbar->dropdownButton('batch-group')
+          ->text('JTOOLBAR_BATCH')
+          ->toggleSplit(false)
+          ->icon('fas fa-ellipsis-h')
+          ->buttonClass('btn btn-action')
+          ->listCheck(true);
+        
+        $batch_childBar = $batch_dropdown->getChildToolbar();
 
-			if(isset($this->items[0]->checked_out))
-			{
-				$childBar->checkin('configs.checkin')->listCheck(true);
-			}
-
-			if(isset($this->items[0]->state))
-			{
-				$childBar->trash('configs.trash')->listCheck(true);
-			}
-		}
+        // Duplicate button inside batch dropdown
+        $batch_childBar->standardButton('duplicate')
+          ->text('JTOOLBAR_DUPLICATE')
+          ->icon('fas fa-copy')
+          ->task('images.duplicate')
+          ->listCheck(true);
+      }
+    }
 
 		// Show trash and delete for components that uses the state field
-		if(isset($this->items[0]->state))
+		if(isset($this->items[0]->published))
 		{
-			if($this->state->get('filter.state') == ContentComponent::CONDITION_TRASHED && $canDo->get('core.delete'))
+			if($this->state->get('filter.published') == ContentComponent::CONDITION_TRASHED && $canDo->get('core.delete'))
 			{
 				$toolbar->delete('configs.delete')
 					->text('JTOOLBAR_EMPTY_TRASH')
