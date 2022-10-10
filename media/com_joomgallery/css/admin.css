@@ -52,3 +52,9 @@ img.jg_minithumb {
   display: block;
   margin: 0 auto;
 }
+.mt {
+  margin-top: 1rem;
+}
+.mb {
+  margin-bottom: 1rem;
+}
