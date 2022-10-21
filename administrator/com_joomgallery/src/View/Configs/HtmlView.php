@@ -96,7 +96,7 @@ class HtmlView extends JoomGalleryView
     {
       $toolbar->delete('configs.delete')
         ->text('JTOOLBAR_DELETE')
-        ->message(Text::_('COM_JOOMGALLERY_CONFIRM_DELETE_CONFIGS'))
+        ->message(Text::_('COM_JOOMGALLERY_CONFIRM_DELETE_ITEMS'))
         ->listCheck(true);
     }
 
@@ -132,7 +132,7 @@ class HtmlView extends JoomGalleryView
         $batch_childBar->standardButton('duplicate')
           ->text('JTOOLBAR_DUPLICATE')
           ->icon('fas fa-copy')
-          ->task('images.duplicate')
+          ->task('configs.duplicate')
           ->listCheck(true);
       }
     }

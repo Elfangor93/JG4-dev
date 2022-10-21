@@ -99,7 +99,7 @@ class HtmlView extends JoomGalleryView
     {
       $toolbar->delete('images.delete')
         ->text('JTOOLBAR_DELETE')
-        ->message(Text::_('COM_JOOMGALLERY_CONFIRM_DELETE_IMAGES'))
+        ->message(Text::_('COM_JOOMGALLERY_CONFIRM_DELETE_ITEMS'))
         ->listCheck(true);
     }
 
