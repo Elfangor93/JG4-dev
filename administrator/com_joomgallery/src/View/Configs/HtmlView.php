@@ -79,19 +79,56 @@ class HtmlView extends JoomGalleryView
 
 		ToolbarHelper::title(Text::_('COM_JOOMGALLERY_CONFIGURATION_MANAGER'), "config");
 
-		$toolbar = Toolbar::getInstance('toolbar');
+    $toolbar = Toolbar::getInstance('toolbar');
 
-		// Check if the form exists before showing the add/edit buttons
-		$formPath = JPATH_COMPONENT_ADMINISTRATOR . '/src/View/Configs';
+    // Check if the form exists before showing the add/edit buttons
+    $formPath = JPATH_COMPONENT_ADMINISTRATOR . '/src/View/Configs';
 
-		if(file_exists($formPath))
-		{
-			if($canDo->get('core.create'))
-			{
-				$toolbar->addNew('config.add');
-			}
-		}
+    // New button
+    if(file_exists($formPath))
+    {
+      if($canDo->get('core.create'))
+      {
+        $toolbar->addNew('config.add');
+      }
+    }
 
+    if($canDo->get('core.edit.state')  || count($this->transitions))
+    {
+      // Batch button
+      $dropdown = $toolbar->dropdownButton('status-group')
+        ->text('JTOOLBAR_BATCH')
+        ->toggleSplit(false)
+        ->icon('fas fa-sliders-h')
+        ->buttonClass('btn btn-action')
+        ->listCheck(true);
+
+      $childBar = $dropdown->getChildToolbar();
+
+      $childBar->standardButton('duplicate')
+        ->text('JTOOLBAR_DUPLICATE')
+        ->icon('fas fa-copy')
+        ->task('configs.duplicate')
+        ->listCheck(true);
+
+      // State button
+      $dropdown = $toolbar->dropdownButton('status-group')
+        ->text('JSTATUS')
+        ->toggleSplit(false)
+        ->icon('far fa-check-circle')
+        ->buttonClass('btn btn-action')
+        ->listCheck(true);
+
+      $status_childBar = $dropdown->getChildToolbar();
+
+      if(isset($this->items[0]->published))
+      {
+        $status_childBar->publish('configs.publish')->listCheck(true);
+        $status_childBar->unpublish('configs.unpublish')->listCheck(true);
+      }
+    }
+
+    // Delete button
     if($canDo->get('core.delete'))
     {
       $toolbar->delete('configs.delete')
@@ -100,63 +137,26 @@ class HtmlView extends JoomGalleryView
         ->listCheck(true);
     }
 
-		if($canDo->get('core.edit.state')  || count($this->transitions))
-		{
-			$dropdown = $toolbar->dropdownButton('status-group')
-				->text('JTOOLBAR_PUBLISH')
-				->toggleSplit(false)
-				->icon('fas fa-ellipsis-h')
-				->buttonClass('btn btn-action')
-				->listCheck(true);
-
-			$childBar = $dropdown->getChildToolbar();
-
-			if(isset($this->items[0]->published))
-			{
-				$childBar->publish('configs.publish')->listCheck(true);
-				$childBar->unpublish('configs.unpublish')->listCheck(true);
-			}
-
-      if($canDo->get('core.edit'))
+    // Show trash and delete for components that uses the state field
+    if(isset($this->items[0]->state))
+    {
+      if($this->state->get('filter.state') == ContentComponent::CONDITION_TRASHED && $canDo->get('core.delete'))
       {
-        $batch_dropdown = $toolbar->dropdownButton('batch-group')
-          ->text('JTOOLBAR_BATCH')
-          ->toggleSplit(false)
-          ->icon('fas fa-ellipsis-h')
-          ->buttonClass('btn btn-action')
-          ->listCheck(true);
-        
-        $batch_childBar = $batch_dropdown->getChildToolbar();
-
-        // Duplicate button inside batch dropdown
-        $batch_childBar->standardButton('duplicate')
-          ->text('JTOOLBAR_DUPLICATE')
-          ->icon('fas fa-copy')
-          ->task('configs.duplicate')
+        $toolbar->delete('configs.delete')
+          ->text('JTOOLBAR_EMPTY_TRASH')
+          ->message('JGLOBAL_CONFIRM_DELETE')
           ->listCheck(true);
       }
     }
 
-		// Show trash and delete for components that uses the state field
-		if(isset($this->items[0]->published))
-		{
-			if($this->state->get('filter.published') == ContentComponent::CONDITION_TRASHED && $canDo->get('core.delete'))
-			{
-				$toolbar->delete('configs.delete')
-					->text('JTOOLBAR_EMPTY_TRASH')
-					->message('JGLOBAL_CONFIRM_DELETE')
-					->listCheck(true);
-			}
-		}
+    if($canDo->get('core.admin'))
+    {
+      $toolbar->preferences('com_joomgallery');
+    }
 
-		if($canDo->get('core.admin'))
-		{
-			$toolbar->preferences('com_joomgallery');
-		}
-
-		// Set sidebar action
-		Sidebar::setAction('index.php?option=com_joomgallery&view=configs');
-	}
+    // Set sidebar action
+    Sidebar::setAction('index.php?option=com_joomgallery&view=configs');
+  }
 
 	/**
 	 * Method to order fields
