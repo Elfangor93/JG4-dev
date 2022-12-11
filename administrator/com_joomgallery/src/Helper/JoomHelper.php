@@ -475,7 +475,7 @@ class JoomHelper
       foreach ($exif_options as $key => $exif_option)
       {
         // add all defined exif options
-        $text  = $exif_config_array[$exif_option[0]][$exif_option[1]]['Name'].' (exif)';
+        $text  = Text::_($exif_config_array[$exif_option[0]][$exif_option[1]]['Name']).' (exif)';
         $value = $exif_option[0] . '-' . $exif_option[1];
         if($formtype == 'subform')
         {
@@ -490,7 +490,7 @@ class JoomHelper
       foreach ($iptc_options as $key => $iptc_option)
       {
         // add all defined iptc options
-        $text  = $iptc_config_array[$iptc_option[0]][$iptc_option[1]]['Name'].' (iptc)';
+        $text  = Text::_($iptc_config_array[$iptc_option[0]][$iptc_option[1]]['Name']).' (iptc)';
         $value = $iptc_option[0] . '-' . $iptc_option[1];
         if($formtype == 'subform')
         {
