@@ -34,7 +34,7 @@ class JoomHelper
    *
    * @var array
    */
-  protected static $content_types = array('category', 'config', 'image', 'imagetype', 'tag');
+  protected static $content_types = array('category', 'config', 'field', 'image', 'imagetype', 'tag', 'user', 'vote');
 
   /**
 	 * Gets the JoomGallery component object
