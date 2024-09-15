@@ -45,6 +45,14 @@ class MigrationTable extends Table
    */
   public $completed = false;
 
+  /**
+   * True if queues (queue, successful, failed) are stored in a file
+   *
+   * @var  bool
+   *
+   * @since  4.0.0
+   */
+  public $queue_file = false;
 
 	/**
 	 * Constructor
@@ -115,6 +123,12 @@ class MigrationTable extends Table
 			$registry = new Registry($this->params);
 			$this->params = (string) $registry;
 		}
+
+    // Store queue in file instead
+    if($queue_file)
+    {
+      $this->storeQueue();
+    }
 
 		return parent::store($updateNulls);
 	}
@@ -255,6 +269,12 @@ class MigrationTable extends Table
 
     if($success)
     {
+      // Load queue from file instead
+      if($queue_file)
+      {
+        $this->loadQueue();
+      }
+
       // Bring table to the correct form
       $this->check();
 

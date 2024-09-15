@@ -542,6 +542,12 @@ abstract class Migration implements MigrationInterface
       $this->checkImageMapping($checks, 'destination');
     }
 
+    // Check max_allowed_packet (DB)
+    if($this->params->get('store_queue', 'database') == 'database')
+    {
+      $this->checkDBpacketSize($checks, 'destination');
+    }
+
     // Perform some script specific checks
     $this->scriptSpecificChecks('pre', $checks, 'general');
 
@@ -1476,6 +1482,33 @@ abstract class Migration implements MigrationInterface
     {
       // Destination imagetype not used in the mapping
       $checks->addCheck($category, 'mapping_dest_types', false, false, Text::_('COM_JOOMGALLERY_FIELDS_IMAGEMAPPING_LABEL'), Text::sprintf('COM_JOOMGALLERY_SERVICE_MIGRATION_MAPPING_IMAGETYPE_NOT_USED', \implode(', ', $tmp_dest_imagetypes)));
+    }
+  }
+
+  /**
+   * Precheck: Check the DB varible 'max_allowed_packet' to be big enough
+   * 
+   * @param  Checks   $checks     The checks object
+   * @param  string   $category   The checks-category into which to add the new check
+   *
+   * @return  void
+   *
+   * @since   4.0.0
+  */
+  protected function checkDBpacketSize(Checks &$checks, string $category)
+  {
+    // Get table info
+    list($db, $dbPrefix) = $this->getDB('destination');
+
+    $query = $db->getQuery(true);
+    $db->setQuery('SELECT @@global.max_allowed_packet');
+
+    $size   = $db->loadResult();
+    $sizeMB = $size / 1024 / 1024;
+
+    if($sizeMB < 50)
+    {
+      $checks->addCheck($category, 'max_allowed_packet', false, true, Text::_('COM_JOOMGALLERY_SERVICE_MIGRATION_PACKET_SIZE'), Text::sprintf('COM_JOOMGALLERY_SERVICE_MIGRATION_PACKET_SIZE_WARNING', $sizeMB));
     }
   }
 
